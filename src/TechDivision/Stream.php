@@ -45,24 +45,6 @@ class Stream {
     const SOCKET_READ_RETRY_WAIT_TIME_USEC = 100000;
 
     /**
-     * Path to ServerCertificate
-     * @var string
-     */
-    protected $serverCertPath = "server.pem";
-
-    /**
-     * Passphrase for ServerCertificate
-     * @var string
-     */
-    protected $serverCertPass = "";
-
-    /**
-     * Scheme for StreamServer
-     * @var string
-     */
-    protected $scheme = "tcp";
-
-    /**
      * The socket resource.
      * @var resource
      */
@@ -628,66 +610,4 @@ class Stream {
         // throw an exception
         return new StreamException($errorMessage, $errorCode, $se);
     }
-
-    /**
-     * Enable SSL Encryption for this Stream Server
-     *
-     * @return mixed
-     */
-    public function enableSSL()
-    {
-        //change Scheme from "http" to "ssl"
-        $this->setScheme("ssl");
-
-        stream_context_set_option($this->getContext(), 'ssl', 'local_cert', $this->getServerCertPath());
-        // Pass Phrase (password) of private key
-        stream_context_set_option($this->getContext(), 'ssl', 'passphrase', $this->getServerCertPass());
-
-        stream_context_set_option($this->getContext(), 'ssl', 'allow_self_signed', true);
-        stream_context_set_option($this->getContext(), 'ssl', 'verify_peer', false);
-
-        return $this;
-    }
-
-    /**
-     * Returns Path to Server Certificate
-     *
-     * @return string Server Certificate Path
-     */
-    protected function getServerCertPath()
-    {
-        return $this->serverCertPath;
-    }
-
-    /**
-     * Returns Server Certificate Passphrase
-     *
-     * @return string
-     */
-    protected function getServerCertPass()
-    {
-        return $this->serverCertPass;
-    }
-
-    /**
-     * Returns Current Stream Server Scheme
-     *
-     * @return string
-     */
-    public function getScheme()
-    {
-        return $this->scheme;
-    }
-
-    /**
-     * Sets Stream Server Scheme
-     *
-     * @param $scheme
-     * @return void
-     */
-    public function setScheme($scheme)
-    {
-        $this->scheme = $scheme;
-    }
-
 }
