@@ -31,6 +31,6 @@ class Server extends Client {
      * @return \TechDivision\Stream\Server The server instance itself
      */
     public function start() {
-        return $this->create()->listen()->setBlock();
+        return $this->create()->enableSSL()->listen()->setBlock();
     }
 }
