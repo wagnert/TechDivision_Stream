@@ -10,7 +10,7 @@
  * http://opensource.org/licenses/osl-3.0.php
  */
 
-namespace TechDivision\Socket;
+namespace TechDivision\Stream;
 
 use TechDivision\Stream\Client;
 
