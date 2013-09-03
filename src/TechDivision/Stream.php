@@ -60,7 +60,7 @@ class Stream {
      * Scheme for StreamServer
      * @var string
      */
-    protected $scheme = "http";
+    protected $scheme = "tcp";
 
     /**
      * The socket resource.
@@ -435,7 +435,7 @@ class Stream {
     public function listen() {
 
         // list to the socket
-        $socket = stream_socket_server("tcp://{$this->getAddress()}:{$this->getPort()}" , $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $this->getContext());
+        $socket = stream_socket_server("{$this->getScheme()}://{$this->getAddress()}:{$this->getPort()}" , $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $this->getContext());
 
         // check if a socket connection has been enabled
         if (!$socket) {
