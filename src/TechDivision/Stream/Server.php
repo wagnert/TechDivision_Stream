@@ -61,11 +61,8 @@ class Server extends Client {
     {
         //change Scheme from "http" to "ssl"
         $this->setScheme("ssl");
-
+        
         stream_context_set_option($this->getContext(), 'ssl', 'local_cert', $this->getServerCertPath());
-        // Pass Phrase (password) of private key
-        stream_context_set_option($this->getContext(), 'ssl', 'passphrase', $this->getServerCertPass());
-
         stream_context_set_option($this->getContext(), 'ssl', 'allow_self_signed', true);
         stream_context_set_option($this->getContext(), 'ssl', 'verify_peer', false);
 

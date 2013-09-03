@@ -204,8 +204,9 @@ class Stream {
      * @link http://de3.php.net/socket_create
      */
     public function create() {
+        
         // create new socket
-        if (($context = @stream_context_create()) === false) {
+        if (($context = stream_context_create()) === false) {
             $this->newStreamException();
         }
 
@@ -268,54 +269,6 @@ class Stream {
     }
 
     /**
-     * This method set's whether the local addresses can be reused by calling the socket function {@link http://de3.php.net/socket_set_option socket_set_option()}.
-     *
-     * @param integer $reuse Has to be 1 if the address can be reused, else false
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_set_option
-     */
-    public function setReuseAddr($reuse = 1) {
-        return $this->setOption(SOL_SOCKET, SO_REUSEADDR, $reuse);
-    }
-
-    /**
-     * This method sets the timeout value for input operations by calling the socket function {@link http://de3.php.net/socket_set_option socket_set_option()}.
-     *
-     * @param integer $seconds The seconds part on the timeout
-     * @param integer $microseconds The microseconds part on the timeout
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_set_option
-     */
-    public function setReceiveTimeout($seconds = 0, $microseconds = 100) {
-        return $this->setOption(SOL_SOCKET, SO_RCVTIMEO, array("sec" => $seconds, "usec" => $microseconds));
-    }
-
-    /**
-     * This method set's the socket's lingering option by calling the socket function {@link http://de3.php.net/socket_set_option socket_set_option()}.
-     *
-     * When an application program indicates that a socket is to linger, it also specifies a duration for the
-     * lingering period. If the lingering period expires before the disconnect is completed, the socket layer
-     * forcibly shuts down the socket, discarding any data still pending.
-     *
-     * If onOff is non-zero and linger is zero, all the unsent data will be discarded and RST (reset) is sent to
-     * the peer in the case of a connection-oriented socket. On the other hand, if onOff is non-zero and linger is
-     * non-zero, {@link http://de3.php.net/socket_close socket_close()} will block until all the data is sent or the
-     * time specified in l_linger elapses. If the socket is non-blocking, {@link http://de3.php.net/socket_close socket_close()}
-     * will fail and return an error.
-     *
-     * @param integer $onOff Switches lingering on if integer is passed that is non-zero
-     * @param integer $linger By setting this to non-zero {@link http://de3.php.net/socket_close socket_close()} will block until all the data is sent or the timeout elapses
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_set_option
-     */
-    public function setLinger($onOff = 1, $linger = 1) {
-        return $this->setOption(SOL_SOCKET, SO_LINGER, array('l_onoff' => $onOff, 'l_linger' => $linger));
-    }
-
-    /**
      * Wrapper method for the original socket function {@link http://de3.php.net/socket_close socket_close()}.
      * The method closes a socket resource.
      *
@@ -324,14 +277,6 @@ class Stream {
      * @link http://de3.php.net/socket_close
      */
     public function close() {
-
-        // try to close the socket
-        if (@fclose($this->resource, STREAM_SHUT_RDWR) === false) {
-            throw $this->newStreamException();
-
-        }
-
-        // return the socket instance itself
         return $this;
     }
 
@@ -346,7 +291,7 @@ class Stream {
     public function shutdown() {
 
         // try to shutdown the socket
-        if (@stream_socket_shutdown($this->resource, STREAM_SHUT_RDWR) === false) {
+        if (stream_socket_shutdown($this->resource, STREAM_SHUT_RDWR) === false) {
             throw $this->newStreamException();
         }
 
@@ -363,13 +308,6 @@ class Stream {
      * @link http://de3.php.net/socket_connect
      */
     public function connect() {
-
-        // connect to a socket
-        if (@socket_connect($this->resource, $this->getAddress(), $this->getPort()) === false) {
-            throw $this->newStreamException();
-        }
-
-        // return the socket instance itself
         return $this;
     }
 
@@ -402,7 +340,6 @@ class Stream {
      * @link http://de3.php.net/socket_bind
      */
     public function bind() {
-        // return the socket instance itself
         return $this;
     }
 
@@ -418,7 +355,7 @@ class Stream {
 
         // list to the socket
         $socket = stream_socket_server("{$this->getScheme()}://{$this->getAddress()}:{$this->getPort()}" , $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $this->getContext());
-
+        
         // check if a socket connection has been enabled
         if (!$socket) {
             
@@ -459,13 +396,6 @@ class Stream {
      * @throws SocketException Is thrown if an failure occured
      */
     public function select(&$read, &$write, &$except, $timeoutSeconds = null, $timeoutMicroseconds = 0) {
-
-        // now call select - blocking call
-        if (@socket_select($read, $write, $except, $timeoutSeconds, $timeoutMicroseconds) === false) {
-            throw $this->newStreamException();
-        }
-
-        // return the socket instance itself
         return $this;
     }
 
@@ -480,7 +410,7 @@ class Stream {
     public function accept() {
 
         // accept a new incoming connection
-        $client = @stream_socket_accept($this->resource);
+        $client = stream_socket_accept($this->resource);
 
         // check if a new incoming connection has been accepted
         if ($client === false && $this->isBlocking()) {
@@ -512,13 +442,9 @@ class Stream {
      * @link http://de3.php.net/socket_read
      */
     public function read($length, $type = PHP_BINARY_READ) {
-
-        // record the number of read attempts
-        $readAttempts = 0;
-
+        
         // try to read data from the socket
         while (($result = fread($this->resource, $length)) === false) {
-
         }
 
         // return the string read from the socket
@@ -536,13 +462,6 @@ class Stream {
      * @link http://de3.php.net/socket_getsockname
      */
     public function getSockName(&$address, &$port) {
-
-        // query the local socket
-        if (@socket_getsockname($this->resource, $address, $port) === false) {
-            throw $this->newStreamException();
-        }
-
-        // return the instance itself
         return $this;
     }
 
@@ -557,13 +476,6 @@ class Stream {
      * @link http://de3.php.net/socket_getpeername
      */
     public function getPeerName(&$address, &$port) {
-
-        // query the remote socket
-        if (@socket_getpeername($this->resource, $address, $port) === false) {
-            throw $this->newStreamException();
-        }
-
-        // return the instance itself
         return $this;
     }
 
@@ -581,8 +493,8 @@ class Stream {
     public function setOption($level, $optionName, $value) {
 
         // try to set the socket's receive timeout
-        if (@stream_context_set_option($this->resource, $level, $optionName, $value) === false) {
-
+        if (stream_context_set_option($this->resource, $level, $optionName, $value) === false) {
+            throw $this->newStreamException();
         }
 
         // the socket instance itself
