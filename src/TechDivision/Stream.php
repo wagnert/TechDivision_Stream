@@ -27,24 +27,6 @@ use TechDivision\StreamException;
 class Stream {
 
     /**
-     * The *nix socket error number for Resource Temporarily Unavailable state.
-     * @var integer
-     */
-    const SOCKET_ERROR_RESOURCE_TEMPORARILY_UNAVAILABLE = 11;
-
-    /**
-     * Times to retry reading from one socket if error 11 occurs.
-     * @var integer
-     */
-    const SOCKET_READ_RETRY_COUNT = 10;
-
-    /**
-     * The time to wait between two read attempts on one socket in microseconds (here: 0.1 sec).
-     * @var integer
-     */
-    const SOCKET_READ_RETRY_WAIT_TIME_USEC = 100000;
-
-    /**
      * The socket resource.
      * @var resource
      */
@@ -58,7 +40,7 @@ class Stream {
 
     /**
      * Stream Context
-     * @var mixed
+     * @var resource
      */
     protected $context;
 
@@ -69,21 +51,16 @@ class Stream {
     protected $port = 0;
 
     /**
-     * A maximum of backlog incoming connections will be queued for processing.
-     *
-     * If a connection request arrives with the queue full the client may receive an error with an indication
-     * of ECONNREFUSED, or, if the underlying protocol supports retransmission, the request may be ignored
-     * so that retries may succeed.
-     *
-     * @var integer
-     */
-    protected $backlog = 100;
-
-    /**
-     *
-     * @var unknown
+     * TRUE if the socket should block, else FALSE.
+     * @var boolean
      */
     protected $blocking = false;
+
+    /**
+     * The default stream socket timeout for the accept() method in seconds.
+     * @var integer
+     */
+    protected $defaultTimeout = -1;
 
     /**
      * Initializes the socket instance with the socket resource.
@@ -139,7 +116,7 @@ class Stream {
      * Sets the port the socket listens to.
      *
      * @param integer $port The port the socket listens to
-     * @return Socket The socket instance itself
+     * @return Stream The socket instance itself
      */
     public function setPort($port) {
         $this->port = $port;
@@ -153,6 +130,32 @@ class Stream {
      */
     public function getPort() {
         return $this->port;
+    }
+
+    /**
+     * Sets the default timeout in seconds for the accept() method
+     * of the socket.
+     *
+     * @param integer $defaultTimeout The default timeout for the accept() method
+     * @return Stream The socket instance itself
+     * @see Stream::accept()
+     * @link http://www.php.net/manual/de/filesystem.configuration.php#ini.default-socket-timeout
+     */
+    public function setDefaultTimeout($defaultTimeout) {
+        $this->defaultTimeout = $defaultTimeout;
+        return $this;
+    }
+
+    /**
+     * Sets the default timeout in seconds for the accept() method
+     * of the socket.
+     *
+     * @return integer The default timeout of the accept() method
+     * @see Stream::accept()
+     * @link http://www.php.net/manual/de/filesystem.configuration.php#ini.default-socket-timeout
+     */
+    public function getDefaultTimeout() {
+        return $this->defaultTimeout;
     }
 
     /**
@@ -175,38 +178,18 @@ class Stream {
         return $this->context;
     }
 
-
     /**
-     * Set's the maximum backlog number of incoming connections will be queued for processing.
+     * This method create's a streaming socket context with the function
+     * {@link http://de3.php.net/stream_context_create stream_context_create()}.
      *
-     * @param integer $backlog The maximum backlog number of incoming connections
-     * @return Socket The socket instance itself
-     */
-    public function setBacklog($backlog) {
-        $this->backlog = $backlog;
-        return $this;
-    }
-
-    /**
-     * Return's the socket's backlog that specifies the maximum of backlog incoming connections that will be queued for processing.
-     * @return int
-     * @link http://http://de3.php.net/socket_listen
-     */
-    public function getBacklog() {
-        return $this->backlog;
-    }
-
-    /**
-     * This method create's a socket (endpoint for communication) by calling the socket function {@link http://de3.php.net/socket_create socket_create()}.
-     *
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_create
+     * @return Stream The socket instance itself
+     * @throws StreamException Is thrown if an failure occured
+     * @link http://de3.php.net/stream_context_create
      */
     public function create() {
         
         // create new socket
-        if (($context = stream_context_create()) === false) {
+        if (($context = @stream_context_create()) === false) {
             $this->newStreamException();
         }
 
@@ -227,18 +210,19 @@ class Stream {
     }
 
     /**
-     * This method set's the socket in blocking mode by calling the socket function {@link http://de3.php.net/socket_set_block socket_set_block()}.
+     * This method set's the socket in blocking mode by calling the socket function
+     * {@link http://de3.php.net/socket_set_block socket_set_block()}.
      *
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_set_block
+     * @return Stream The socket instance itself
+     * @throws StreamException Is thrown if an failure occured
+     * @link http://de3.php.net/stream_set_blocking
      */
     public function setBlock() {
 
         // activate blocking mode
         $this->blocking = true;
 
-        if (stream_set_blocking($this->resource , 1) === false) {
+        if (@stream_set_blocking($this->resource , 1) === false) {
             $this->newStreamException();
         }
 
@@ -247,11 +231,12 @@ class Stream {
     }
 
     /**
-     * This method set's the socket in non-blocking mode by calling the socket function {@link http://de3.php.net/socket_set_nonblock socket_set_nonblock()}.
+     * This method set's the socket in non-blocking mode by calling the socket function
+     * {@link http://de3.php.net/stream_set_blocking stream_set_blocking()}.
      *
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_set_nonblock
+     * @return Stream The socket instance itself
+     * @throws StreamException Is thrown if an failure occured
+     * @link http://de3.php.net/stream_set_blocking
      */
     public function setNoBlock() {
 
@@ -259,7 +244,7 @@ class Stream {
         $this->blocking = false;
 
         // set the socket in non-blocking mode
-        if (stream_set_blocking($this->resource, 0) === false) {
+        if (@stream_set_blocking($this->resource, 0) === false) {
             $this->newStreamException();
 
         }
@@ -269,30 +254,31 @@ class Stream {
     }
 
     /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_close socket_close()}.
-     * The method closes a socket resource.
+     * Destroys the socket resource.
      *
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_close
+     * @return Stream The socket instance itself
      */
-    public function close() {
+    public function close()
+    {
+        unset($this->resource);
         return $this;
     }
 
     /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_shutdown socket_shutdown()}.
+     * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_shutdown stream_socket_shutdown()}.
      * The method shuts down a socket for receiving, sending, or both.
      *
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_shutdown
+     * @return Stream The socket instance itself
+     * @throws StreamException Is thrown if an failure occured
+     * @link http://de3.php.net/stream_socket_shutdown
      */
     public function shutdown() {
 
         // try to shutdown the socket
-        if (stream_socket_shutdown($this->resource, STREAM_SHUT_RDWR) === false) {
-            throw $this->newStreamException();
+        if (is_resource($this->resource)) {
+            if (@stream_socket_shutdown($this->resource, STREAM_SHUT_RDWR) === false) {
+                throw $this->newStreamException();
+            }
         }
 
         // return the socket instance itself
@@ -300,30 +286,18 @@ class Stream {
     }
 
     /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_connect socket_connect()}.
-     * The method initiates a connection on a socket
-     *
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_connect
-     */
-    public function connect() {
-        return $this;
-    }
-
-    /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_send socket_send()}.
+     * Wrapper method for the original socket function {@link http://de3.php.net/fwrite fwrite()}.
      * The method sends data to a connected socket.
      *
      * @param string $data The data to send over the socket
      * @return integer The number of bytes send over the socket
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_write
+     * @throws StreamException Is thrown if an failure occured
+     * @link http://de3.php.net/fwrite
      */
     public function send($data) {
 
         // try to send the data to the socket
-        if (($bytesSend = fwrite($this->resource, $data)) === false) {
+        if (($bytesSend = @fwrite($this->resource, $data)) === false) {
             throw $this->newStreamException();
         }
 
@@ -332,33 +306,22 @@ class Stream {
     }
 
     /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_accept socket_accept()}.
-     * The method accepts a new connection on the socket.
+     * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_server stream_socket_server()}.
+     * The method listens for a connection on a streaming socket.
      *
-     * @return Socket A new client socket
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_bind
+     * @return Stream The stream socket instance itself
+     * @throws StreamException Is thrown if an failure occurred
+     * @link http://de3.php.net/stream_socket_server
      */
-    public function bind() {
-        return $this;
-    }
+    public function listen()
+    {
 
-    /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_listen socket_listen()}.
-     * The method listens for a connection on a socket.
-     *
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occurred
-     * @link http://de3.php.net/socket_listen
-     */
-    public function listen() {
-
-        // list to the socket
-        $socket = stream_socket_server("{$this->getScheme()}://{$this->getAddress()}:{$this->getPort()}" , $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $this->getContext());
+        // create a new socket connection and listen to it
+        $localSocket = "{$this->getScheme()}://{$this->getAddress()}:{$this->getPort()}";
+        $socket = @stream_socket_server($localSocket, $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $this->getContext());
         
         // check if a socket connection has been enabled
-        if (!$socket) {
-            
+        if ($socket === false) {
             try {
                 // try to close the socket
                 $this->close();
@@ -378,39 +341,17 @@ class Stream {
     }
 
     /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_select socket_select()}.
+     * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_accept stream_socket_accept()}.
      * The method accepts a new connection on the socket.
      *
-     * The timeoutSeconds and timeoutMicroseconds together form the timeout parameter. The timeout is an upper
-     * bound on the amount of time elapsed before {@link http://de3.php.net/socket_select socket_select()} return.
-     * timeoutSeconds may be zero , causing {@link http://de3.php.net/socket_select socket_select()} to return
-     * immediately. This is useful for polling. If timeoutSeconds is NULL (no timeout), {@link http://de3.php.net/socket_select socket_select()}
-     * can block indefinitely.
-     *
-     * @param array $read The sockets listed in the read array will be watched to see if characters become available for reading
-     * @param array $write The sockets listed in the write array will be watched to see if a write will not block
-     * @param array $except The sockets listed in the except array will be watched for exceptions
-     * @param integer $timeoutSeconds Timeout in seconds, or null if no timeout should be used
-     * @param int $timeoutMicroseconds Timeout in microseconds
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
-     */
-    public function select(&$read, &$write, &$except, $timeoutSeconds = null, $timeoutMicroseconds = 0) {
-        return $this;
-    }
-
-    /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_accept socket_accept()}.
-     * The method accepts a new connection on the socket.
-     *
-     * @return Socket A new client socket
-     * @throws SocketException Is thrown if an failure occured
-     * @link http://de3.php.net/socket_accept
+     * @return Stream A new client socket
+     * @throws StreamException Is thrown if an failure occured
+     * @link http://de3.php.net/stream_socket_accept
      */
     public function accept() {
 
         // accept a new incoming connection
-        $client = stream_socket_accept($this->resource);
+        $client = @stream_socket_accept($this->resource, $this->getDefaultTimeout());
 
         // check if a new incoming connection has been accepted
         if ($client === false && $this->isBlocking()) {
@@ -424,27 +365,17 @@ class Stream {
     }
 
     /**
-     * OO Wrapper for PHP's {@link http://de3.php.net/socket_read socket_read()} function. Except for the
-     * "Resource temporarily unavailable" error, only an Exception is thrown. Typed exception is thrown
-     * to allow handling of that error, since it should be treated in a special way.
-     *
-     * For regular workflow, it is necessary to allow retrying a read operation on a socket which
-     * signals that it is not ready yet. At least under Linux, this is an acceptable
-     * and normal condition. It is not sufficient to just end the connection and continue in the
-     * main loop, since the original client connection would hang indefinitely until a timeout
-     * occurs. Instead, it is necessary to retry reading while the socket is not ready yet, which
-     * is usually no longer than a a few milliseconds.
+     * OO Wrapper for PHP's {@link http://de3.php.net/fread fread()} function.
      *
      * @param integer $length The maximum number of bytes read is specified by the length parameter
-     * @param int $type Optional type parameter is a named constant, PHP_BINARY_READ (default) or PHP_NORMAL_READ
-     * @throws SocketException Is thrown if a failure occured
+     * @throws StreamException Is thrown if a failure occured
      * @return string The string read from the socket
-     * @link http://de3.php.net/socket_read
+     * @link http://de3.php.net/fread
      */
-    public function read($length, $type = PHP_BINARY_READ) {
+    public function read($length) {
         
         // try to read data from the socket
-        while (($result = fread($this->resource, $length)) === false) {
+        while (($result = @fread($this->resource, $length)) === false) {
         }
 
         // return the string read from the socket
@@ -452,48 +383,50 @@ class Stream {
     }
 
     /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_getsockname socket_getsockname()}.
+     * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_get_name stream_socket_get_name()}.
      * The method queries the local side of the socket.
      *
      * @param string $address The local address
      * @param integer $port The local port
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occurred
-     * @link http://de3.php.net/socket_getsockname
+     * @return Stream The socket instance itself
+     * @throws StreamException Is thrown if an failure occurred
+     * @link http://de3.php.net/stream_socket_get_name
      */
     public function getSockName(&$address, &$port) {
+        $address = @stream_socket_get_name($this->resource, false);
         return $this;
     }
 
     /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_getpeername socket_getpeername()}.
+     * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_get_name stream_socket_get_name()}.
      * The method queries the remote side of the socket.
      *
      * @param string $address The remote address
      * @param integer $port The remote port
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occurred
-     * @link http://de3.php.net/socket_getpeername
+     * @return Stream The socket instance itself
+     * @throws StreamException Is thrown if an failure occurred
+     * @link http://de3.php.net/stream_socket_get_name
      */
     public function getPeerName(&$address, &$port) {
+        $address = @stream_socket_get_name($this->resource, true);
         return $this;
     }
 
     /**
-     * Wrapper method for the original socket function {@link http://de3.php.net/socket_set_option socket_set_option()}.
+     * Wrapper method for the original socket function {@link http://de3.php.net/stream_context_set_option stream_context_set_option()}.
      * The method sets socket options for the socket.
      *
      * @param integer $level The option level to set
      * @param integer $optionName The option name to set
      * @param mixed $value The option value to set
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occurred
-     * @link http://de3.php.net/socket_set_option
+     * @return Stream The socket instance itself
+     * @throws StreamException Is thrown if an failure occurred
+     * @link http://de3.php.net/stream_context_set_option
      */
     public function setOption($level, $optionName, $value) {
 
         // try to set the socket's receive timeout
-        if (stream_context_set_option($this->resource, $level, $optionName, $value) === false) {
+        if (@stream_context_set_option($this->resource, $level, $optionName, $value) === false) {
             throw $this->newStreamException();
         }
 
@@ -506,8 +439,8 @@ class Stream {
      * found socket error.
      *
      * @param integer $errorCode The error code to initialize the exception with
-     * @param SocketException $se The previous exception if available
-     * @return SocketException The initialized exception ready to be thrown
+     * @param StreamException $se The previous exception if available
+     * @return StreamException The initialized exception ready to be thrown
      */
     protected function newStreamException($errorCode = null, $se = null) {
 

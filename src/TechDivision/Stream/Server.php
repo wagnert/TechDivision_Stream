@@ -55,7 +55,7 @@ class Server extends Client {
     /**
      * Enable SSL Encryption for this Stream Server
      *
-     * @return mixed
+     * @return \TechDivision\Stream\Server The instance itself
      */
     public function enableSSL()
     {
