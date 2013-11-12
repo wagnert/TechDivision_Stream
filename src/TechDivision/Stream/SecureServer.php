@@ -62,10 +62,12 @@ class SecureServer extends Server
         // change Scheme from "http" to "ssl"
         $this->setScheme("ssl");
         
+        // set the SSL context
         stream_context_set_option($this->getContext(), 'ssl', 'local_cert', $this->getServerCertPath());
         stream_context_set_option($this->getContext(), 'ssl', 'allow_self_signed', true);
         stream_context_set_option($this->getContext(), 'ssl', 'verify_peer', false);
         
+        // return the instance itself
         return $this;
     }
 

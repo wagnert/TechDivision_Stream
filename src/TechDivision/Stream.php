@@ -27,43 +27,57 @@ class Stream
 {
 
     /**
-     * The socket resource.
+     * Times to retry reading from one socket if error 11 occurs.
      * 
+     * @var integer
+     */
+    const SOCKET_READ_RETRY_COUNT = 10;
+
+    /**
+     * The time to wait between two read attempts on one socket in microseconds (here: 0.1 sec).
+     * 
+     * @var integer
+     */
+    const SOCKET_READ_RETRY_WAIT_TIME_USEC = 100000;
+
+    /**
+     * The socket resource.
+     *
      * @var resource
      */
     protected $resource = null;
 
     /**
      * The default address the socket listens to.
-     * 
+     *
      * @var string
      */
     protected $address = '127.0.0.1';
 
     /**
      * Stream Context
-     * 
+     *
      * @var resource
      */
     protected $context;
 
     /**
      * The default port the socket listens to.
-     * 
+     *
      * @var int
      */
     protected $port = 0;
 
     /**
      * TRUE if the socket should block, else FALSE.
-     * 
+     *
      * @var boolean
      */
     protected $blocking = false;
 
     /**
      * The default stream socket timeout for the accept() method in seconds.
-     * 
+     *
      * @var integer
      */
     protected $defaultTimeout = - 1;
@@ -406,9 +420,65 @@ class Stream
     {
         
         // try to read data from the socket
-        while (($result = @fread($this->resource, $length)) === false) {}
+        while (($result = @fread($this->resource, $length)) === false) {
+            
+            // check for the error code and retry if possible
+            if ($readAttempts ++ < self::SOCKET_READ_RETRY_COUNT) {
+            
+                // sleep for a certain time
+                usleep(self::SOCKET_READ_RETRY_WAIT_TIME_USEC);
+            
+                // continue with the next read attempt
+                continue;
+            }
+            
+            // on any other socket error, or if the max. number of read attempts has been reached, throw exception
+            throw $this->newStreamException();
+        }
         
         // return the string read from the socket
+        return $result;
+    }
+
+    /**
+     * OO Wrapper for PHP's {@link http://de3.php.net/stream_socket_recvfrom stream_socket_recvfrom()} function 
+     * that accepts data from a remote socket up to length bytes.
+     *
+     * @param integer $length
+     *            The maximum number of bytes read is specified by the length parameter
+     * @param integer $flags
+     *            The value of flags can be any combination of the following flags, joined with the binary OR (|) operator
+     * @throws StreamException Is thrown if a failure occured
+     * @return string The string read from the socket
+     * @link http://de3.php.net/stream_socket_recvfrom
+     */
+    public function readFrom($length, $flags = 0)
+    {
+        
+        // initialize the buffer and the remote IP/port
+        $result = '';
+        $remoteIpAndPort = '127.0.0.1:1234';
+        
+        // try to read data from the socket
+        while (($result = @stream_socket_recvfrom($this->resource, $length, $flags, $remoteIpAndPort)) === false) {
+            
+            // check for the error code and retry if possible
+            if ($readAttempts ++ < self::SOCKET_READ_RETRY_COUNT) {
+            
+                // sleep for a certain time
+                usleep(self::SOCKET_READ_RETRY_WAIT_TIME_USEC);
+            
+                // continue with the next read attempt
+                continue;
+            }
+            
+            // on any other socket error, or if the max. number of read attempts has been reached, throw exception
+            throw $this->newStreamException();
+            
+        }
+        
+        // set IP and port and return the buffer
+        list ($this->address, $this->port) = explode(':', $remoteIpAndPort);
         return $result;
     }
 
