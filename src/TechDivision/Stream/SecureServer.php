@@ -24,6 +24,13 @@ use TechDivision\Stream\Client;
  */
 class SecureServer extends Server
 {
+    
+    /**
+     * Stream scheme for SSL connection.
+     *  
+     * @var string
+     */
+    const STREAM_SCHEME_SSL = 'ssl';
 
     /**
      * Path to ServerCertificate
@@ -59,13 +66,13 @@ class SecureServer extends Server
      */
     public function enableSSL()
     {
-        // change Scheme from "http" to "ssl"
-        $this->setScheme("ssl");
+        // change Scheme from "tcp" to "ssl"
+        $this->setScheme(self::STREAM_SCHEME_SSL);
         
         // set the SSL context
-        stream_context_set_option($this->getContext(), 'ssl', 'local_cert', $this->getServerCertPath());
-        stream_context_set_option($this->getContext(), 'ssl', 'allow_self_signed', true);
-        stream_context_set_option($this->getContext(), 'ssl', 'verify_peer', false);
+        stream_context_set_option($this->getContext(), $this->getScheme(), 'local_cert', $this->getServerCertPath());
+        stream_context_set_option($this->getContext(), $this->getScheme(), 'allow_self_signed', true);
+        stream_context_set_option($this->getContext(), $this->getScheme(), 'verify_peer', false);
         
         // return the instance itself
         return $this;
