@@ -598,6 +598,21 @@ class Stream
     }
 
     /**
+     * Wrapper method for the original socket function {@link http://de3.php.net/stream_get_meta_data stream_get_meta_data()}.
+     * The method returns information about an existing socket.
+     *
+     * @return array The array with the socket meta information
+     * @throws SocketException Is thrown if an failure occurred
+     * @link http://de3.php.net/stream_get_meta_data
+     */
+    public function getMetaData()
+    {
+        if (($metaData = @stream_get_meta_data($this->resource)) === false) {
+            throw $this->newSocketException();
+        }
+    }
+
+    /**
      * Returns a new socket exception initialized with the passed error message and the last
      * found socket error.
      *
