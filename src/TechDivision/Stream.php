@@ -39,6 +39,20 @@ class Stream
      * @var integer
      */
     const SOCKET_READ_RETRY_WAIT_TIME_USEC = 100000;
+    
+    /**
+     * Stream scheme for TCP connection.
+     *  
+     * @var string
+     */
+    const STREAM_SCHEME_TCP = 'tcp';
+
+    /**
+     * Scheme for StreamServer
+     * 
+     * @var string
+     */
+    protected $scheme = self::STREAM_SCHEME_TCP;
 
     /**
      * The socket resource.
@@ -542,6 +556,60 @@ class Stream
         
         // the socket instance itself
         return $this;
+    }
+
+    /**
+     * This method sets the timeout value for input operations by calling the socket function {@link http://de3.php.net/stream_set_timeout stream_set_timeout()}.
+     *
+     * @param integer $seconds
+     *            The seconds part on the timeout
+     * @param integer $microseconds
+     *            The microseconds part on the timeout
+     * @return Socket The socket instance itself
+     * @throws SocketException Is thrown if an failure occured
+     * @link http://de3.php.net/stream_set_timeout
+     */
+    public function setReceiveTimeout($seconds = 0, $microseconds = 100)
+    {
+        stream_set_timeout($this->resource, $seconds, $microseconds);
+        return $this;
+    }
+
+    /**
+     * Returns Current Stream Server Scheme
+     *
+     * @return string
+     */
+    public function getScheme()
+    {
+        return $this->scheme;
+    }
+
+    /**
+     * Sets Stream Server Scheme
+     *
+     * @param
+     *            $scheme
+     * @return void
+     */
+    public function setScheme($scheme)
+    {
+        $this->scheme = $scheme;
+    }
+
+    /**
+     * Wrapper method for the original socket function {@link http://de3.php.net/stream_get_meta_data stream_get_meta_data()}.
+     * The method returns information about an existing socket.
+     *
+     * @return array The array with the socket meta information
+     * @throws SocketException Is thrown if an failure occurred
+     * @link http://de3.php.net/stream_get_meta_data
+     */
+    public function getMetaData()
+    {
+        if (($metaData = @stream_get_meta_data($this->resource)) === false) {
+            throw $this->newSocketException();
+        }
     }
 
     /**

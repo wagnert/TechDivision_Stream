@@ -26,13 +26,6 @@ class Server extends Client
 {
 
     /**
-     * Scheme for StreamServer
-     * 
-     * @var string
-     */
-    protected $scheme = "tcp";
-
-    /**
      * Starts a streaming server listen to the specified IP address and port.
      *
      * @return \TechDivision\Stream\Server The server instance itself
@@ -42,27 +35,5 @@ class Server extends Client
         return $this->create()
             ->listen()
             ->setBlock();
-    }
-
-    /**
-     * Returns Current Stream Server Scheme
-     *
-     * @return string
-     */
-    public function getScheme()
-    {
-        return $this->scheme;
-    }
-
-    /**
-     * Sets Stream Server Scheme
-     *
-     * @param
-     *            $scheme
-     * @return void
-     */
-    public function setScheme($scheme)
-    {
-        $this->scheme = $scheme;
     }
 }
