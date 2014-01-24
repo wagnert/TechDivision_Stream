@@ -11,18 +11,18 @@
  */
 namespace TechDivision\Stream;
 
-use TechDivision\Stream\Client;
 use TechDivision\StreamException;
 
 /**
  * A secure streaming socket implementation.
  *
- * @package TechDivision\Stream
- * @copyright Copyright (c) 2010 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim Wagner <tw@techdivision.com>
- * @author Johann Zelger <jz@techdivision.com>
+ * @category  Appserver.io
+ * @package   TechDivision_Stream
+ * @author    Tim Wagner <tw@techdivision.com>
+ * @author    Johann Zelger <jz@techdivision.com>
+ * @copyright 2013 TechDivision GmbH <info@techdivision.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      http://www.appserver.io
  */
 class SecureServer extends Server
 {
@@ -161,6 +161,4 @@ class SecureServer extends Server
         // return itself
         return $this;
     }
-
-
 }

@@ -1,28 +1,32 @@
 <?php
-
 /**
  * TechDivision\Stream
  *
- * NOTICE OF LICENSE
+ * PHP version 5
  *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
+ * @category  Appserver.io
+ * @package   TechDivision_Stream
+ * @author    Tim Wagner <tw@techdivision.com>
+ * @copyright 2013 TechDivision GmbH <info@techdivision.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      http://www.appserver.io
  */
+
 namespace TechDivision;
 
 use TechDivision\StreamException;
 
 /**
- * The socket implementation.
+ * A streaming socket implementation.
  *
- * @package TechDivision
- * @copyright Copyright (c) 2010 <info@techdivision.com> - TechDivision GmbH
- * @license http://opensource.org/licenses/osl-3.0.php
- *          Open Software License (OSL 3.0)
- * @author Tim Wagner <tw@techdivision.com>
- * @author Tim Wagner <tw@appserver.io>
+ * @category  Appserver.io
+ * @package   TechDivision_Stream
+ * @author    Tim Wagner <tw@techdivision.com>
+ * @copyright 2013 TechDivision GmbH <info@techdivision.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      http://www.appserver.io
  */
+
 class Stream
 {
 
@@ -99,8 +103,8 @@ class Stream
     /**
      * Initializes the socket instance with the socket resource.
      *
-     * @param resource $resource
-     *            The socket resource
+     * @param resource $resource The socket resource
+     *
      * @return \TechDivision\Socket
      */
     public function __construct($resource = null)
@@ -111,8 +115,8 @@ class Stream
     /**
      * Set's the socket resource to use.
      *
-     * @param resource $resource
-     *            The socket resource to use
+     * @param resource $resource The socket resource to use
+     *
      * @return Socket The socket instance itself
      */
     public function setResource($resource)
@@ -134,8 +138,8 @@ class Stream
     /**
      * Set's the address the socket listens to.
      *
-     * @param string $address
-     *            The address the socket listens to
+     * @param string $address The address the socket listens to
+     *
      * @return Socket The socket instance itself
      */
     public function setAddress($address)
@@ -157,8 +161,8 @@ class Stream
     /**
      * Sets the port the socket listens to.
      *
-     * @param integer $port
-     *            The port the socket listens to
+     * @param integer $port The port the socket listens to
+     *
      * @return Stream The socket instance itself
      */
     public function setPort($port)
@@ -181,8 +185,8 @@ class Stream
      * Sets the default timeout in seconds for the accept() method
      * of the socket.
      *
-     * @param integer $defaultTimeout
-     *            The default timeout for the accept() method
+     * @param integer $defaultTimeout The default timeout for the accept() method
+     *
      * @return Stream The socket instance itself
      * @see Stream::accept()
      * @link http://www.php.net/manual/de/filesystem.configuration.php#ini.default-socket-timeout
@@ -209,7 +213,8 @@ class Stream
     /**
      * Sets the Context of StreamSocket
      *
-     * @param Resource $context            
+     * @param Resource $context The Context
+     *
      * @return Stream The socket instance itself
      */
     public function setContext($context)
@@ -343,8 +348,8 @@ class Stream
      * Wrapper method for the original socket function {@link http://de3.php.net/fwrite fwrite()}.
      * The method sends data to a connected socket.
      *
-     * @param string $data
-     *            The data to send over the socket
+     * @param string $data The data to send over the socket
+     *
      * @return integer The number of bytes send over the socket
      * @throws StreamException Is thrown if an failure occured
      * @link http://de3.php.net/fwrite
@@ -424,8 +429,8 @@ class Stream
     /**
      * OO Wrapper for PHP's {@link http://de3.php.net/fread fread()} function.
      *
-     * @param integer $length
-     *            The maximum number of bytes read is specified by the length parameter
+     * @param integer $length The maximum number of bytes read is specified by the length parameter
+     *
      * @throws StreamException Is thrown if a failure occured
      * @return string The string read from the socket
      * @link http://de3.php.net/fread
@@ -458,10 +463,9 @@ class Stream
      * OO Wrapper for PHP's {@link http://de3.php.net/stream_socket_recvfrom stream_socket_recvfrom()} function 
      * that accepts data from a remote socket up to length bytes.
      *
-     * @param integer $length
-     *            The maximum number of bytes read is specified by the length parameter
-     * @param integer $flags
-     *            The value of flags can be any combination of the following flags, joined with the binary OR (|) operator
+     * @param integer $length The maximum number of bytes read is specified by the length parameter
+     * @param integer $flags  The value of flags can be any combination of the following flags, joined with the binary OR (|) operator
+     *
      * @throws StreamException Is thrown if a failure occured
      * @return string The string read from the socket
      * @link http://de3.php.net/stream_socket_recvfrom
@@ -500,10 +504,9 @@ class Stream
      * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_get_name stream_socket_get_name()}.
      * The method queries the local side of the socket.
      *
-     * @param string $address
-     *            The local address
-     * @param integer $port
-     *            The local port
+     * @param string  &$address The local address
+     * @param integer &$port    The local port
+     *
      * @return Stream The socket instance itself
      * @throws StreamException Is thrown if an failure occurred
      * @link http://de3.php.net/stream_socket_get_name
@@ -518,10 +521,9 @@ class Stream
      * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_get_name stream_socket_get_name()}.
      * The method queries the remote side of the socket.
      *
-     * @param string $address
-     *            The remote address
-     * @param integer $port
-     *            The remote port
+     * @param string  &$address The remote address
+     * @param integer &$port    The remote port
+     *
      * @return Stream The socket instance itself
      * @throws StreamException Is thrown if an failure occurred
      * @link http://de3.php.net/stream_socket_get_name
@@ -536,12 +538,10 @@ class Stream
      * Wrapper method for the original socket function {@link http://de3.php.net/stream_context_set_option stream_context_set_option()}.
      * The method sets socket options for the socket.
      *
-     * @param integer $level
-     *            The option level to set
-     * @param integer $optionName
-     *            The option name to set
-     * @param mixed $value
-     *            The option value to set
+     * @param integer $level      The option level to set
+     * @param integer $optionName The option name to set
+     * @param mixed   $value      The option value to set
+     *
      * @return Stream The socket instance itself
      * @throws StreamException Is thrown if an failure occurred
      * @link http://de3.php.net/stream_context_set_option
@@ -561,10 +561,9 @@ class Stream
     /**
      * This method sets the timeout value for input operations by calling the socket function {@link http://de3.php.net/stream_set_timeout stream_set_timeout()}.
      *
-     * @param integer $seconds
-     *            The seconds part on the timeout
-     * @param integer $microseconds
-     *            The microseconds part on the timeout
+     * @param integer $seconds      The seconds part on the timeout
+     * @param integer $microseconds The microseconds part on the timeout
+     *
      * @return Socket The socket instance itself
      * @throws SocketException Is thrown if an failure occured
      * @link http://de3.php.net/stream_set_timeout
@@ -588,8 +587,8 @@ class Stream
     /**
      * Sets Stream Server Scheme
      *
-     * @param
-     *            $scheme
+     * @param string $scheme The scheme e.g. "tcp" or "udp"
+     *
      * @return void
      */
     public function setScheme($scheme)
@@ -616,10 +615,9 @@ class Stream
      * Returns a new socket exception initialized with the passed error message and the last
      * found socket error.
      *
-     * @param integer $errorCode
-     *            The error code to initialize the exception with
-     * @param StreamException $se
-     *            The previous exception if available
+     * @param integer         $errorCode The error code to initialize the exception with
+     * @param StreamException $se        The previous exception if available
+     *
      * @return StreamException The initialized exception ready to be thrown
      */
     protected function newStreamException($errorCode = null, $se = null)
