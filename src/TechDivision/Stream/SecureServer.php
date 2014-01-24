@@ -12,6 +12,7 @@
 namespace TechDivision\Stream;
 
 use TechDivision\Stream\Client;
+use TechDivision\StreamException;
 
 /**
  * A secure streaming socket implementation.
@@ -21,6 +22,7 @@ use TechDivision\Stream\Client;
  * @license http://opensource.org/licenses/osl-3.0.php
  *          Open Software License (OSL 3.0)
  * @author Tim Wagner <tw@techdivision.com>
+ * @author Johann Zelger <jz@techdivision.com>
  */
 class SecureServer extends Server
 {
@@ -33,30 +35,34 @@ class SecureServer extends Server
     const STREAM_SCHEME_SSL = 'ssl';
 
     /**
-     * Path to ServerCertificate
+     * Path to cert file
      * 
      * @var string
      */
-    protected $serverCertPath = "/opt/appserver/etc/server.pem";
+    protected $certPath;
 
     /**
-     * Passphrase for ServerCertificate
+     * Passphrase for cert
      * 
      * @var string
      */
-    protected $serverCertPass = "";
+    protected $certPassphrase;
 
     /**
      * Starts a streaming server listen to the specified IP address and port.
      *
-     * @return \TechDivision\Stream\Server The server instance itself
+     * @return \TechDivision\Stream\Server|null The server instance itself
      */
     public function start()
     {
-        return $this->create()
-            ->enableSSL()
-            ->listen()
-            ->setBlock();
+        // validate given ssl cert
+        if ($this->validateCert()) {
+            // start socket listen and bind in blocking mode
+            return $this->create()
+                ->enableSSL()
+                ->listen()
+                ->setBlock();
+        }
     }
 
     /**
@@ -70,12 +76,44 @@ class SecureServer extends Server
         $this->setScheme(self::STREAM_SCHEME_SSL);
         
         // set the SSL context
-        stream_context_set_option($this->getContext(), $this->getScheme(), 'local_cert', $this->getServerCertPath());
+        stream_context_set_option($this->getContext(), $this->getScheme(), 'local_cert', $this->getCertPath());
         stream_context_set_option($this->getContext(), $this->getScheme(), 'allow_self_signed', true);
         stream_context_set_option($this->getContext(), $this->getScheme(), 'verify_peer', false);
+
+        // check if passphrase is given and set it to context options
+        if ($this->getCertPassphrase()) {
+            stream_context_set_option(
+                $this->getContext(),
+                $this->getScheme(),
+                'passphrase',
+                $this->getCertPassphrase()
+            );
+        }
         
         // return the instance itself
         return $this;
+    }
+
+    /**
+     * Validate the certification file by given config path
+     *
+     * @throws StreamException
+     * @return boolean
+     */
+    protected function validateCert() {
+        // check if cert path exists
+        if (!is_file($this->getCertPath())) {
+            // throw exception
+            throw new StreamException(
+                sprintf(
+                    'SSL certPath not valid for address "%s:%s". Certificate File not found "%s"',
+                    $this->getAddress(),
+                    $this->getPort(),
+                    $this->getCertPath())
+            );
+        }
+        // return successful validation result
+        return true;
     }
 
     /**
@@ -83,9 +121,9 @@ class SecureServer extends Server
      *
      * @return string Server Certificate Path
      */
-    protected function getServerCertPath()
+    protected function getCertPath()
     {
-        return $this->serverCertPath;
+        return $this->certPath;
     }
 
     /**
@@ -93,8 +131,36 @@ class SecureServer extends Server
      *
      * @return string
      */
-    protected function getServerCertPass()
+    protected function getCertPassphrase()
     {
-        return $this->serverCertPass;
+        return $this->certPassphrase;
     }
+
+    /**
+     * Sets cert passphrase
+     *
+     * @param string $certPassphrase
+     * @return SecureServer
+     */
+    public function setCertPassphrase($certPassphrase)
+    {
+        $this->certPassphrase = $certPassphrase;
+        // return itself
+        return $this;
+    }
+
+    /**
+     * Sets path to cert file
+     *
+     * @param string $certPath
+     * @return SecureServer
+     */
+    public function setCertPath($certPath)
+    {
+        $this->certPath = $certPath;
+        // return itself
+        return $this;
+    }
+
+
 }
