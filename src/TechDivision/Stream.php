@@ -29,20 +29,6 @@ use TechDivision\StreamException;
 
 class Stream
 {
-
-    /**
-     * Times to retry reading from one socket if error 11 occurs.
-     * 
-     * @var integer
-     */
-    const SOCKET_READ_RETRY_COUNT = 10;
-
-    /**
-     * The time to wait between two read attempts on one socket in microseconds (here: 0.1 sec).
-     * 
-     * @var integer
-     */
-    const SOCKET_READ_RETRY_WAIT_TIME_USEC = 100000;
     
     /**
      * Stream scheme for TCP connection.
@@ -439,19 +425,7 @@ class Stream
     {
         
         // try to read data from the socket
-        while (($result = @fread($this->resource, $length)) === false) {
-            
-            // check for the error code and retry if possible
-            if ($readAttempts ++ < self::SOCKET_READ_RETRY_COUNT) {
-            
-                // sleep for a certain time
-                usleep(self::SOCKET_READ_RETRY_WAIT_TIME_USEC);
-            
-                // continue with the next read attempt
-                continue;
-            }
-            
-            // on any other socket error, or if the max. number of read attempts has been reached, throw exception
+        if (($result = @fread($this->resource, $length)) === false) {
             throw $this->newStreamException();
         }
         
@@ -478,19 +452,7 @@ class Stream
         $remoteIpAndPort = '127.0.0.1:1234';
         
         // try to read data from the socket
-        while (($result = @stream_socket_recvfrom($this->resource, $length, $flags, $remoteIpAndPort)) === false) {
-            
-            // check for the error code and retry if possible
-            if ($readAttempts ++ < self::SOCKET_READ_RETRY_COUNT) {
-            
-                // sleep for a certain time
-                usleep(self::SOCKET_READ_RETRY_WAIT_TIME_USEC);
-            
-                // continue with the next read attempt
-                continue;
-            }
-            
-            // on any other socket error, or if the max. number of read attempts has been reached, throw exception
+        if (($result = @stream_socket_recvfrom($this->resource, $length, $flags, $remoteIpAndPort)) === false) {
             throw $this->newStreamException();
             
         }
