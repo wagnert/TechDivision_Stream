@@ -8,6 +8,16 @@
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is available through the world-wide-web at this URL:
  * http://opensource.org/licenses/osl-3.0.php
+ *
+ * PHP version 5
+ *
+ * @category  Appserver
+ * @package   TechDivision_Stream
+ * @author    Tim Wagner <tw@techdivision.com>
+ * @author    Johann Zelger <jz@techdivision.com>
+ * @copyright 2013 TechDivision GmbH <info@techdivision.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link      http://www.appserver.io
  */
 namespace TechDivision\Stream;
 
@@ -15,14 +25,15 @@ use TechDivision\StreamException;
 
 /**
  * A secure streaming socket implementation.
- *
- * @category  Appserver.io
- * @package   TechDivision_Stream
- * @author    Tim Wagner <tw@techdivision.com>
- * @author    Johann Zelger <jz@techdivision.com>
- * @copyright 2013 TechDivision GmbH <info@techdivision.com>
- * @license   http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link      http://www.appserver.io
+ * 
+ * @category   Appserver
+ * @package    TechDivision_Stream
+ * @subpackage Stream
+ * @author     Tim Wagner <tw@techdivision.com>
+ * @author     Johann Zelger <jz@techdivision.com>
+ * @copyright  2013 TechDivision GmbH <info@techdivision.com>
+ * @license    http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @link       http://www.appserver.io
  */
 class SecureServer extends Server
 {
@@ -95,12 +106,14 @@ class SecureServer extends Server
     }
 
     /**
-     * Validate the certification file by given config path
+     * Validate the certification file by given config path.
      *
-     * @throws StreamException
-     * @return boolean
+     * @return boolean TRUE if the validation was successfull, else FALSE
+     * @throws \TechDivision\StreamException Is thrown if the certificate file is not available
      */
-    protected function validateCert() {
+    protected function validateCert()
+    {
+        
         // check if cert path exists
         if (!is_file($this->getCertPath())) {
             // throw exception
@@ -109,17 +122,19 @@ class SecureServer extends Server
                     'SSL certPath not valid for address "%s:%s". Certificate File not found "%s"',
                     $this->getAddress(),
                     $this->getPort(),
-                    $this->getCertPath())
+                    $this->getCertPath()
+                )
             );
         }
+        
         // return successful validation result
         return true;
     }
 
     /**
-     * Returns Path to Server Certificate
+     * Returns path to server certificate.
      *
-     * @return string Server Certificate Path
+     * @return string The server certificate path
      */
     protected function getCertPath()
     {
@@ -127,9 +142,9 @@ class SecureServer extends Server
     }
 
     /**
-     * Returns Server Certificate Passphrase
+     * Returns server certificate passphrase
      *
-     * @return string
+     * @return string The server certificate passphrase
      */
     protected function getCertPassphrase()
     {
@@ -137,28 +152,28 @@ class SecureServer extends Server
     }
 
     /**
-     * Sets cert passphrase
+     * Sets server cert passphrase.
      *
-     * @param string $certPassphrase
-     * @return SecureServer
+     * @param string $certPassphrase The server certificate passphrase
+     * 
+     * @return \TechDivision\Stream\SecureServer The instance itself
      */
     public function setCertPassphrase($certPassphrase)
     {
         $this->certPassphrase = $certPassphrase;
-        // return itself
         return $this;
     }
 
     /**
      * Sets path to cert file
      *
-     * @param string $certPath
-     * @return SecureServer
+     * @param string $certPath The path to the cert file
+     * 
+     * @return \TechDivision\Stream\SecureServer The instance itself
      */
     public function setCertPath($certPath)
     {
         $this->certPath = $certPath;
-        // return itself
         return $this;
     }
 }
