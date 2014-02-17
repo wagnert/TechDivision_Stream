@@ -94,21 +94,23 @@ class Stream
     /**
      * Initializes the socket instance with the socket resource.
      *
-     * @param resource $resource The socket resource
+     * @param mixed $resource The socket resource
      *
-     * @return \TechDivision\Socket
+     * @return void
      */
     public function __construct($resource = null)
     {
-        $this->setResource($resource);
+        if ($resource != null) {
+            $this->setResource($resource);
+        }
     }
 
     /**
      * Set's the socket resource to use.
      *
-     * @param resource $resource The socket resource to use
+     * @param mixed $resource The socket resource to use
      *
-     * @return Socket The socket instance itself
+     * @return \TechDivision\Stream The socket instance itself
      */
     public function setResource($resource)
     {
@@ -119,7 +121,7 @@ class Stream
     /**
      * Returns the socket resource used to connect to the socket.
      *
-     * @return resource The socket resource
+     * @return mixed The socket resource
      */
     public function getResource()
     {
@@ -131,7 +133,7 @@ class Stream
      *
      * @param string $address The address the socket listens to
      *
-     * @return Socket The socket instance itself
+     * @return \TechDivision\Stream The socket instance itself
      */
     public function setAddress($address)
     {
@@ -154,7 +156,7 @@ class Stream
      *
      * @param integer $port The port the socket listens to
      *
-     * @return Stream The socket instance itself
+     * @return \TechDivision\Stream The socket instance itself
      */
     public function setPort($port)
     {
@@ -178,8 +180,8 @@ class Stream
      *
      * @param integer $defaultTimeout The default timeout for the accept() method
      *
-     * @return Stream The socket instance itself
-     * @see Stream::accept()
+     * @return \TechDivision\Stream The socket instance itself
+     * @see \TechDivision\Stream::accept()
      * @link http://www.php.net/manual/de/filesystem.configuration.php#ini.default-socket-timeout
      */
     public function setDefaultTimeout($defaultTimeout)
@@ -193,7 +195,7 @@ class Stream
      * of the socket.
      *
      * @return integer The default timeout of the accept() method
-     * @see Stream::accept()
+     * @see \TechDivision\Stream::accept()
      * @link http://www.php.net/manual/de/filesystem.configuration.php#ini.default-socket-timeout
      */
     public function getDefaultTimeout()
@@ -204,9 +206,9 @@ class Stream
     /**
      * Sets the Context of StreamSocket
      *
-     * @param Resource $context The Context
+     * @param mixed $context The stream context resource
      *
-     * @return Stream The socket instance itself
+     * @return \TechDivision\Stream The socket instance itself
      */
     public function setContext($context)
     {
@@ -217,7 +219,7 @@ class Stream
     /**
      * Returns the Stream Context
      *
-     * @return Resource Stream Context
+     * @return mixed Stream context resource
      */
     public function getContext()
     {
@@ -228,13 +230,12 @@ class Stream
      * This method create's a streaming socket context with the function
      * {@link http://de3.php.net/stream_context_create stream_context_create()}.
      *
-     * @return Stream The socket instance itself
-     * @throws StreamException Is thrown if an failure occured
+     * @return \TechDivision\Stream The socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occured
      * @link http://de3.php.net/stream_context_create
      */
     public function create()
     {
-        
         // create new socket
         if (($context = @stream_context_create()) === false) {
             $this->newStreamException();
@@ -261,8 +262,8 @@ class Stream
      * This method set's the socket in blocking mode by calling the socket function
      * {@link http://de3.php.net/socket_set_block socket_set_block()}.
      *
-     * @return Stream The socket instance itself
-     * @throws StreamException Is thrown if an failure occured
+     * @return \TechDivision\Stream The socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occured
      * @link http://de3.php.net/stream_set_blocking
      */
     public function setBlock()
@@ -283,8 +284,8 @@ class Stream
      * This method set's the socket in non-blocking mode by calling the socket function
      * {@link http://de3.php.net/stream_set_blocking stream_set_blocking()}.
      *
-     * @return Stream The socket instance itself
-     * @throws StreamException Is thrown if an failure occured
+     * @return \TechDivision\Stream The socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occured
      * @link http://de3.php.net/stream_set_blocking
      */
     public function setNoBlock()
@@ -317,8 +318,8 @@ class Stream
      * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_shutdown stream_socket_shutdown()}.
      * The method shuts down a socket for receiving, sending, or both.
      *
-     * @return Stream The socket instance itself
-     * @throws StreamException Is thrown if an failure occured
+     * @return \TechDivision\Stream The socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occured
      * @link http://de3.php.net/stream_socket_shutdown
      */
     public function shutdown()
@@ -342,7 +343,7 @@ class Stream
      * @param string $data The data to send over the socket
      *
      * @return integer The number of bytes send over the socket
-     * @throws StreamException Is thrown if an failure occured
+     * @throws \TechDivision\StreamException Is thrown if an failure occured
      * @link http://de3.php.net/fwrite
      */
     public function send($data)
@@ -361,8 +362,8 @@ class Stream
      * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_server stream_socket_server()}.
      * The method listens for a connection on a streaming socket.
      *
-     * @return Stream The stream socket instance itself
-     * @throws StreamException Is thrown if an failure occurred
+     * @return \TechDivision\Stream The stream socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occurred
      * @link http://de3.php.net/stream_socket_server
      */
     public function listen()
@@ -396,8 +397,8 @@ class Stream
      * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_accept stream_socket_accept()}.
      * The method accepts a new connection on the socket.
      *
-     * @return Stream A new client socket
-     * @throws StreamException Is thrown if an failure occured
+     * @return \TechDivision\Stream A new client socket
+     * @throws \TechDivision\StreamException Is thrown if an failure occured
      * @link http://de3.php.net/stream_socket_accept
      */
     public function accept()
@@ -422,7 +423,7 @@ class Stream
      *
      * @param integer $length The maximum number of bytes read is specified by the length parameter
      *
-     * @throws StreamException Is thrown if a failure occured
+     * @throws \TechDivision\StreamException Is thrown if a failure occured
      * @return string The string read from the socket
      * @link http://de3.php.net/fread
      */
@@ -445,7 +446,7 @@ class Stream
      * @param integer $length The maximum number of bytes read is specified by the length parameter
      * @param integer $flags  The value of flags can be any combination of the following flags, joined with the binary OR (|) operator
      *
-     * @throws StreamException Is thrown if a failure occured
+     * @throws \TechDivision\StreamException Is thrown if a failure occured
      * @return string The string read from the socket
      * @link http://de3.php.net/stream_socket_recvfrom
      */
@@ -474,8 +475,8 @@ class Stream
      * @param string  &$address The local address
      * @param integer &$port    The local port
      *
-     * @return Stream The socket instance itself
-     * @throws StreamException Is thrown if an failure occurred
+     * @return \TechDivision\Stream The socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occurred
      * @link http://de3.php.net/stream_socket_get_name
      */
     public function getSockName(&$address, &$port)
@@ -491,8 +492,8 @@ class Stream
      * @param string  &$address The remote address
      * @param integer &$port    The remote port
      *
-     * @return Stream The socket instance itself
-     * @throws StreamException Is thrown if an failure occurred
+     * @return \TechDivision\Stream The socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occurred
      * @link http://de3.php.net/stream_socket_get_name
      */
     public function getPeerName(&$address, &$port)
@@ -509,8 +510,8 @@ class Stream
      * @param integer $optionName The option name to set
      * @param mixed   $value      The option value to set
      *
-     * @return Stream The socket instance itself
-     * @throws StreamException Is thrown if an failure occurred
+     * @return \TechDivision\Stream The socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occurred
      * @link http://de3.php.net/stream_context_set_option
      */
     public function setOption($level, $optionName, $value)
@@ -531,8 +532,8 @@ class Stream
      * @param integer $seconds      The seconds part on the timeout
      * @param integer $microseconds The microseconds part on the timeout
      *
-     * @return Socket The socket instance itself
-     * @throws SocketException Is thrown if an failure occured
+     * @return \TechDivision\Stream The socket instance itself
+     * @throws \TechDivision\StreamException Is thrown if an failure occured
      * @link http://de3.php.net/stream_set_timeout
      */
     public function setReceiveTimeout($seconds = 0, $microseconds = 100)
@@ -542,9 +543,9 @@ class Stream
     }
 
     /**
-     * Returns Current Stream Server Scheme
+     * Returns the current scheme.
      *
-     * @return string
+     * @return string The current scheme to use
      */
     public function getScheme()
     {
@@ -552,7 +553,7 @@ class Stream
     }
 
     /**
-     * Sets Stream Server Scheme
+     * Sets curren scheme to use.
      *
      * @param string $scheme The scheme e.g. "tcp" or "udp"
      *
@@ -568,13 +569,13 @@ class Stream
      * The method returns information about an existing socket.
      *
      * @return array The array with the socket meta information
-     * @throws SocketException Is thrown if an failure occurred
+     * @throws \TechDivision\StreamException Is thrown if an failure occurred
      * @link http://de3.php.net/stream_get_meta_data
      */
     public function getMetaData()
     {
         if (($metaData = @stream_get_meta_data($this->resource)) === false) {
-            throw $this->newSocketException();
+            throw $this->newStreamException();
         }
     }
 
@@ -582,10 +583,10 @@ class Stream
      * Returns a new socket exception initialized with the passed error message and the last
      * found socket error.
      *
-     * @param integer         $errorCode The error code to initialize the exception with
-     * @param StreamException $se        The previous exception if available
+     * @param integer                       $errorCode The error code to initialize the exception with
+     * @param \TechDivision\StreamException $se        The previous exception if available
      *
-     * @return StreamException The initialized exception ready to be thrown
+     * @return \TechDivision\StreamException The initialized exception ready to be thrown
      */
     protected function newStreamException($errorCode = null, $se = null)
     {
