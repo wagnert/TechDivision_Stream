@@ -583,7 +583,7 @@ class Stream
      * Returns a new socket exception initialized with the passed error message and the last
      * found socket error.
      *
-     * @param integer                                         $errorCode The error code to initialize the exception with
+     * @param integer                       $errorCode The error code to initialize the exception with
      * @param \TechDivision\StreamException $se        The previous exception if available
      *
      * @return \TechDivision\StreamException The initialized exception ready to be thrown
