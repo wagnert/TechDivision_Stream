@@ -89,7 +89,7 @@ class Stream
      *
      * @var integer
      */
-    protected $defaultTimeout = - 1;
+    protected $defaultTimeout = -1;
 
     /**
      * Initializes the socket instance with the socket resource.
@@ -186,6 +186,22 @@ class Stream
     {
         $this->defaultTimeout = $defaultTimeout;
         return $this;
+    }
+
+    /**
+     * Sets file buffering on the given stream
+     *
+     * @param int $buffer  The number of bytes to buffer. If buffer is 0 then write operations are unbuffered.
+     *                     This ensures that all writes with fwrite are completed before other processes are
+     *                     allowed to write to that output stream.
+     *
+     * @return int 0 on success, or EOF if the request cannot be honored.
+     * @see stream_set_write_buffer()
+     * @link http://php.net/manual/en/function.stream-set-read-buffer.php
+     */
+    public function setReadBuffer($buffer)
+    {
+        return @stream_set_read_buffer($this->getResource(), $buffer);
     }
 
     /**
@@ -396,16 +412,20 @@ class Stream
      * Wrapper method for the original socket function {@link http://de3.php.net/stream_socket_accept stream_socket_accept()}.
      * The method accepts a new connection on the socket.
      *
+     * @param int $readBuffer The buffer to read, 0 by default
+     *
      * @return Stream A new client socket
      * @throws StreamException Is thrown if an failure occured
      * @link http://de3.php.net/stream_socket_accept
      */
-    public function accept()
+    public function accept($readBuffer = 0)
     {
         
         // accept a new incoming connection
         $client = @stream_socket_accept($this->resource, $this->getDefaultTimeout());
-        
+        // set read buffer
+        @stream_set_read_buffer($client, $readBuffer);
+
         // check if a new incoming connection has been accepted
         if ($client === false && $this->isBlocking()) {
             throw $this->newStreamException();
