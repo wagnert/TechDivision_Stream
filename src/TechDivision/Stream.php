@@ -95,8 +95,6 @@ class Stream
      * Initializes the socket instance with the socket resource.
      *
      * @param mixed $resource The socket resource
-     *
-     * @return void
      */
     public function __construct($resource = null)
     {
@@ -193,9 +191,9 @@ class Stream
     /**
      * Sets file buffering on the given stream
      *
-     * @param int $buffer  The number of bytes to buffer. If buffer is 0 then write operations are unbuffered.
-     *                     This ensures that all writes with fwrite are completed before other processes are
-     *                     allowed to write to that output stream.
+     * @param int $buffer The number of bytes to buffer. If buffer is 0 then write operations are unbuffered.
+     *                    This ensures that all writes with fwrite are completed before other processes are
+     *                    allowed to write to that output stream.
      *
      * @return int 0 on success, or EOF if the request cannot be honored.
      * @see stream_set_write_buffer()
