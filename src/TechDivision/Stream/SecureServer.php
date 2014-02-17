@@ -134,7 +134,7 @@ class SecureServer extends Server
     /**
      * Returns path to server certificate.
      *
-     * @return string The server certificate path
+     * @return string|null The server certificate path
      */
     protected function getCertPath()
     {
@@ -144,7 +144,7 @@ class SecureServer extends Server
     /**
      * Returns server certificate passphrase
      *
-     * @return string The server certificate passphrase
+     * @return string|null The server certificate passphrase
      */
     protected function getCertPassphrase()
     {
@@ -154,7 +154,7 @@ class SecureServer extends Server
     /**
      * Sets server cert passphrase.
      *
-     * @param string $certPassphrase The server certificate passphrase
+     * @param string|null $certPassphrase The server certificate passphrase
      * 
      * @return \TechDivision\Stream\SecureServer The instance itself
      */
@@ -167,7 +167,7 @@ class SecureServer extends Server
     /**
      * Sets path to cert file
      *
-     * @param string $certPath The path to the cert file
+     * @param string|null $certPath The path to the cert file
      * 
      * @return \TechDivision\Stream\SecureServer The instance itself
      */
